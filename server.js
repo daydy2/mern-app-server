@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", require('./routes/route'));
+app.use(require('./routes/route'));
 
 app.use(errorMid);
 
