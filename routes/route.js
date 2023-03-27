@@ -1,6 +1,6 @@
 const express = require("express");
-const { postSignup } = require("../controller/auth,js");
-const { postLogin } = require("../controller/auth,js");
+const { logout } = require("../controller/auth,js");
+const { postSignup, postLogin } = require("../controller/auth,js");
 const router = express.Router();
 const {
   getLandingPage,
@@ -8,15 +8,19 @@ const {
   postComment,
   postPost,
   getProfile,
+  getAllUsers,
 } = require("../controller/user");
+const setCurrentUser = require("../middleware/setCurrentUser");
 
-router.get("/", getLandingPage);
-router.get("/comment", getComment);
-router.get("/profile", getProfile);
+router.get("/", setCurrentUser, getLandingPage);
+router.get("/comment/:postId", setCurrentUser, getComment);
+router.get("/profile", setCurrentUser, getProfile);
+router.get("/getuser", setCurrentUser, getAllUsers);
+router.get("/logout", setCurrentUser, logout);
 
 router.post("/login", postLogin);
-router.post('/signup', postSignup)
-router.post("/comment", postComment);
-router.post("/post", postPost);
+router.post("/signup", postSignup);
+router.post("/comment", setCurrentUser, postComment);
+router.post("/post", setCurrentUser, postPost);
 
 module.exports = router;

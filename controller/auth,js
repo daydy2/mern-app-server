@@ -1,6 +1,7 @@
-const Post = require("../model/post");
-const Comment = require("../model/comment");
-const User = require("../model/user");
+const Post = require("../model/post.model");
+const Comment = require("../model/comment.model");
+const User = require("../model/user.model.js");
+const colors = require("colors");
 const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 const jwt = require("jsonwebtoken");
@@ -9,24 +10,25 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const handleError = (err, next) => {
   const error = new Error(err);
   error.httpStatusCode = 500;
-  return next(error);
+  next(error);
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  User.findOne(email)
+  User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        res.status(401).json({
-          user: false,
-          message: "Lodin Attempt failed",
+        return res.status(401).json({
+          message: "User does not exist in our database",
         });
       }
-      bcrypt.compare(user.password, password).then((doMatch) => {
+      console.log(user);
+      bcrypt.compare(password, user.password).then((doMatch) => {
         if (!doMatch) {
-          res.status(401).json({
+          console.log(doMatch);
+          return res.status(401).json({
             accessToken: null,
             user: null,
             message: "Something is not correct, try again!",
@@ -43,14 +45,17 @@ exports.postLogin = (req, res, next) => {
         );
 
         res.status(200).json({
+          token: token,
           user: {
             userId: user._id.toString(),
             firstName: user.firstname,
             lastName: user.lastname,
-            userImg: userImg ? userImg : null,
+            userImg: user.userImg,
+            email: user.email,
+            role: user.role,
+            handle: user.handle,
           },
           message: "Login Successful",
-          accessToken: token,
         });
       });
     })
@@ -60,27 +65,49 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
-  const { firstname, lastname, email, password, confirmPassword } = req.body;
+  const email = req.body.email;
+  const password = req.body.password;
+  console.log(email, password);
+  User.findOne({ email: email })
+    .then((user) => {
+      if (user) {
+        console.log(user);
+        return res
+          .status(400)
+          .json({ message: "User already exist in our database" });
+      }
 
-  const hashedPassword = bcrypt.hashSync(password, 12);
-  const newUser = new User({
-    firstname: firstname.toLowerCase(),
-    lastname: lastname.toLowerCase(),
-    email: email.toLowerCase(),
-    password: hashedPassword,
-  });
-  newUser.save();
+      const hashedPassword = bcrypt.hashSync(password, 12);
+      const person = new User({
+        email: email.toLowerCase(),
+        password: hashedPassword,
+      });
+      person.save();
 
-  const msg = {
-    to: email.toLowerCase(),
-    from: "miniapp@testemail.com",
-    subject: "Successful Registration",
-    text: "I'm Sam the Unknown",
-    template: process.env.TemplateId,
-    html: "<p>Welcome, your registration was succesful</p>",
-  };
-  return sgMail
-    .send(msg)
-    .then(() => console.log("Email sent".italic.cyan))
-    .catch((err) => console.log(err));
+      console.log(`${person} data saved`);
+
+      const msg = {
+        to: email.toLowerCase().toString(),
+        from: "trippledev@grr.la",
+        subject: "Signup succeeded",
+        text: "Welcome once again",
+        html: "<div1>Successfully signed up.<p></p></div>",
+      };
+      try {
+        sgMail.send(msg);
+        console.log("Email sent");
+        res.status(200).json({
+          message: "Successfully Signed Up",
+        });
+      } catch (err) {
+        return handleError(err);
+      }
+    })
+    .catch();
+};
+
+exports.logout = (req, res, next) => {
+  console.log("you are here");
+  res.set("Authorization", "").redirect('/login')
+ // send a response back to the client
 };
