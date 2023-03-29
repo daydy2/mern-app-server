@@ -26,7 +26,7 @@ exports.postLogin = (req, res, next) => {
           message: "User does not exist in our database",
         });
       }
-      console.log(user);
+
       bcrypt.compare(password, user.password).then((doMatch) => {
         if (!doMatch) {
           console.log(doMatch);
@@ -46,7 +46,7 @@ exports.postLogin = (req, res, next) => {
             expiresIn: 84600,
           }
         );
-        console.log(token);
+
         res.status(200).json({
           token: token,
           user: {
@@ -75,12 +75,9 @@ exports.postSignup = (req, res, next) => {
     return res.status(400).json("Undefined data");
   }
 
-  console.log(email, password);
-
   User.findOne({ email: email })
     .then((user) => {
       if (user) {
-        console.log(user);
         return res
           .status(400)
           .json({ message: "User already exist in our database" });
@@ -93,7 +90,7 @@ exports.postSignup = (req, res, next) => {
       });
       person.save();
 
-      console.log(`${person} data saved`);
+  
 
       const msg = {
         to: email.toLowerCase().toString(),
@@ -116,7 +113,6 @@ exports.postSignup = (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-  console.log("you are here");
   res.set("Authorization", "");
   // send a response back to the client
 };

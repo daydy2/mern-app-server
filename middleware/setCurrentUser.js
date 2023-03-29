@@ -4,8 +4,7 @@ const User = require("../model/user.model");
 const setCurrentUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    console.log(req.headers);
-    console.log(authHeader);
+    
     if (!authHeader) {
       return res.status(401).json({ error: "Token undefined" });
     }

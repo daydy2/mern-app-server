@@ -50,7 +50,7 @@ exports.getComment = (req, res, next) => {
 
 exports.postComment = (req, res, next) => {
   const { comment, userId, postId } = req.body;
-  console.log(req.body);
+  
   const newUserId = new mongoose.Types.ObjectId(userId);
   const newPostId = new mongoose.Types.ObjectId(postId);
   const newComment = new Comment({
