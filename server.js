@@ -48,3 +48,6 @@ mongoose
   .catch((err) => {
     console.log(colors.blue(err));
   });
+
+
+module.exports = app

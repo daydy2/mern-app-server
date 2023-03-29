@@ -17,7 +17,7 @@ const setCurrentUser = require("../middleware/setCurrentUser");
 router.get("/", setCurrentUser, getLandingPage);
 router.get("/comment/:postId", setCurrentUser, getComment);
 router.get("/profile/:userId", setCurrentUser, getProfile);
-router.get("/getuser", setCurrentUser, getAllUsers);
+router.get("/getuser", getAllUsers);
 router.get("/logout", setCurrentUser, logout);
 router.get("/getpost", setCurrentUser, getPost);
 
