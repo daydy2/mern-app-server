@@ -63,12 +63,13 @@ exports.postComment = (req, res, next) => {
 };
 
 exports.getPost = (req, res, next) => {
-  Post.find()
+  Post.find().populate({path: 'author',  options: { strictPopulate: false }} ).exec()
     .then((post) => {
       if (!post) {
         return res.status(201).json({ message: "No post found" });
       }
-      res.status(200).json({ post });
+      
+      return res.status(200).json({ post });
     })
     .catch((err) => handleError(err));
 };
@@ -116,7 +117,7 @@ exports.getProfile = (req, res, next) => {
 exports.postProfile = async (req, res, next) => {
   const { email, firstname, lastname, handle, userId } = req.body;
 
-  if (userId == false ) {
+  if (userId == false) {
     return res.status(400).json("One field is falsy");
   }
 
@@ -130,7 +131,7 @@ exports.postProfile = async (req, res, next) => {
     { $set: updates },
     { new: true }
   ).exec();
-  return res.status(200).json({message: 'Update successful'});
+  return res.status(200).json({ message: "Update successful" });
 };
 
 exports.addFollower = (req, res, next) => {
