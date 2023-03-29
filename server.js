@@ -28,10 +28,6 @@ app.use(cors({
 }));
 
 
-// app.use("/api/current-user", setCurrentUser, (req, res, next) => {
-//   const user = req.currentUser;
-//   res.json({ user: user });
-// });
 
 app.use('/', require("./routes/route"));
 

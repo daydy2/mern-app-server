@@ -28,7 +28,7 @@ exports.getLandingPage = (req, res, next) => {
       if (!post) {
         throw new Error("No Post");
       }
-      res.json({ post: post });
+      res.status(200).json({ post: post });
     })
     .catch((err) => handleError(err));
 };
@@ -41,9 +41,9 @@ exports.getComment = (req, res, next) => {
     .exec()
     .then((comment) => {
       if (!comment) {
-        return res.json({ message: "nothing here" });
+        return res.status(404).json({ message: "nothing here" });
       }
-      return res.json(comment);
+      return res.status(200).json(comment);
     })
     .catch((err) => console.log(err));
 };
@@ -86,7 +86,7 @@ exports.postPost = (req, res, next) => {
     author: userIDM,
   });
   newPost.save();
-  return res.json({
+  return res.status(200).json({
     message: "Post updated sucessfully",
   });
 };
