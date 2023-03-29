@@ -15,12 +15,15 @@
     "nodemon": "^2.0.21"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "name": "mini-app",
   "version": "0.1.0",
   "description": "a mern app",
   "main": "server.js",
   "author": "IGE DANIEL O",
-  "license": "ISC"
+  "license": "ISC",
+  "engines": {
+    "node": "14.x"
+  }
 }
