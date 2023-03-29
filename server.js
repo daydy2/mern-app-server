@@ -5,7 +5,6 @@ const colors = require("colors");
 const cors = require("cors");
 require("dotenv").config();
 const errorMid = require("./middleware/errorMid");
-const setCurrentUser = require("./middleware/setCurrentUser");
 
 const app = express();
 
@@ -22,13 +21,17 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
-app.use(cors);
-app.use("/api/current-user", setCurrentUser, (req, res, next) => {
-  const user = req.currentUser;
-  res.json({ user: user });
-});
 
-app.use(require("./routes/route"));
+
+app.use(cors());
+
+
+// app.use("/api/current-user", setCurrentUser, (req, res, next) => {
+//   const user = req.currentUser;
+//   res.json({ user: user });
+// });
+
+app.use('/', require("./routes/route"));
 
 app.use(errorMid);
 
