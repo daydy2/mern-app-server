@@ -11,10 +11,12 @@ const {
   getAllUsers,
   getPost,
   postProfile,
+  sendHealth
 } = require("../controller/user");
 const setCurrentUser = require("../middleware/setCurrentUser");
 
-router.get("/", getLandingPage);
+router.get("/", setCurrentUser, getLandingPage);
+router.get('/health', sendHealth)
 router.get("/comment/:postId", setCurrentUser, getComment);
 router.get("/profile/:userId", setCurrentUser, getProfile);
 router.get("/getuser", getAllUsers);

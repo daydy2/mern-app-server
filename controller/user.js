@@ -50,7 +50,7 @@ exports.getComment = (req, res, next) => {
 
 exports.postComment = (req, res, next) => {
   const { comment, userId, postId } = req.body;
-  
+
   const newUserId = new mongoose.Types.ObjectId(userId);
   const newPostId = new mongoose.Types.ObjectId(postId);
   const newComment = new Comment({
@@ -63,12 +63,14 @@ exports.postComment = (req, res, next) => {
 };
 
 exports.getPost = (req, res, next) => {
-  Post.find().populate({path: 'author',  options: { strictPopulate: false }} ).exec()
+  Post.find()
+    .populate({ path: "author", options: { strictPopulate: false } })
+    .exec()
     .then((post) => {
       if (!post) {
         return res.status(201).json({ message: "No post found" });
       }
-      
+
       return res.status(200).json({ post });
     })
     .catch((err) => handleError(err));
@@ -150,4 +152,8 @@ exports.addFollower = (req, res, next) => {
     .catch((err) => {
       handleError(err);
     });
+};
+
+exports.sendHealth = (req, res, next) => {
+  res.sendStatus(200);
 };
