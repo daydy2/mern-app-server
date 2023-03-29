@@ -22,6 +22,6 @@
   "description": "a mern app",
   "main": "server.js",
   "author": "IGE DANIEL O",
-  "license": "ISC",
+  "license": "ISC"
   
 }
