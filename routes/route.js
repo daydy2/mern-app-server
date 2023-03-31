@@ -11,13 +11,17 @@ const {
   getAllUsers,
   getPost,
   postProfile,
-  sendHealth
+  sendHealth,
+  deletePost,
+  editPost,
+  getEditPost
 } = require("../controller/user");
 const setCurrentUser = require("../middleware/setCurrentUser");
 
 router.get("/", setCurrentUser, getLandingPage);
 router.get('/health', sendHealth)
-router.get("/comment/:postId", setCurrentUser, getComment);
+router.get("/comment/:postId",  getComment);
+router.get("/edit/:postId",  getEditPost);
 router.get("/profile/:userId", setCurrentUser, getProfile);
 router.get("/getuser", getAllUsers);
 router.get("/logout", setCurrentUser, logout);
@@ -28,5 +32,7 @@ router.post("/signup", postSignup);
 router.post("/comment", setCurrentUser, postComment);
 router.post("/post", setCurrentUser, postPost);
 router.patch("/profile", setCurrentUser, postProfile);
+router.patch("/edit/:postId", setCurrentUser, editPost);
+router.delete('/delete/:postId', setCurrentUser, deletePost)
 
 module.exports = router;

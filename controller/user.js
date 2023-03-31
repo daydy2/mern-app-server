@@ -6,7 +6,7 @@ const { default: mongoose } = require("mongoose");
 const handleError = (err) => {
   const error = new Error(err);
   error.httpStatusCode = 500;
-  next(error);
+  return next(error);
 };
 
 exports.getAllUsers = (req, res, next) => {
@@ -37,20 +37,26 @@ exports.getComment = (req, res, next) => {
   const postId = req.params.postId;
 
   Post.findById(postId)
-    .populate({ path: "comments", options: { strictPopulate: false } })
+    .populate([
+      { path: "author", select: "email" },
+      {
+        path: "comments",
+        populate: { path: "author", select: "email" },
+      },
+    ])
     .exec()
-    .then((comment) => {
-      if (!comment) {
+    .then((result) => {
+      if (!result) {
         return res.status(404).json({ message: "nothing here" });
       }
-      return res.status(200).json(comment);
+      return res.status(200).json(result);
     })
     .catch((err) => console.log(err));
 };
 
 exports.postComment = (req, res, next) => {
   const { comment, userId, postId } = req.body;
-
+  console.log(comment, userId, postId);
   const newUserId = new mongoose.Types.ObjectId(userId);
   const newPostId = new mongoose.Types.ObjectId(postId);
   const newComment = new Comment({
@@ -59,7 +65,21 @@ exports.postComment = (req, res, next) => {
     post: newPostId,
   });
   newComment.save();
-  res.status(200).json({ message: "content saved successfully" });
+
+  Post.findByIdAndUpdate(
+    postId,
+    { $push: { comments: newComment._id } },
+    { new: true }
+  )
+    .then((result) => {
+      if (!result) {
+        return res.status(400).json({ message: "something went wrong" });
+      }
+      return res
+        .status(200)
+        .json({ message: "content saved successfully", post: result });
+    })
+    .catch((err) => console.error(err));
 };
 
 exports.getPost = (req, res, next) => {
@@ -116,6 +136,19 @@ exports.getProfile = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+exports.getEditPost = (req, res, next) => {
+  const postId = req.params.postId;
+
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        return res.status(400).json({ message: "Post does not exist" });
+      }
+      res.status(200).json({ post: post });
+    })
+    .catch((err) => handleError(err));
+};
+
 exports.postProfile = async (req, res, next) => {
   const { email, firstname, lastname, handle, userId } = req.body;
 
@@ -156,4 +189,44 @@ exports.addFollower = (req, res, next) => {
 
 exports.sendHealth = (req, res, next) => {
   res.sendStatus(200);
+};
+
+exports.deletePost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findByIdAndDelete(postId)
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      res.status(200).json({ message: "Post deleted successfully" });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    });
+};
+
+exports.editPost = async (req, res, next) => {
+  const { title, content } = req.body;
+  const postId = req.params.postId;
+
+  const update = {
+    title,
+    content,
+  };
+  Post.findByIdAndUpdate({ _id: postId }, { $set: update }, { new: true })
+    .exec()
+    .then((result) => {
+      if (!result) {
+        return res.staus(400).json({ message: "Post Edit unsuccessful" });
+      }
+      res.status(200).json({ message: "Post Edit succesful" });
+    });
+
+  const updatedDoc = User.findOneAndUpdate(
+    { _id: userId },
+    { $set: updates },
+    { new: true }
+  ).exec();
+  return res.status(200).json({ message: "Update successful" });
 };
