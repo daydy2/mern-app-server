@@ -41,7 +41,7 @@ exports.getComment = (req, res, next) => {
       { path: "author", select: "email" },
       {
         path: "comments",
-        populate: { path: "author", select: "email" },
+        populate: { path: "author" },
       },
     ])
     .exec()
@@ -144,7 +144,7 @@ exports.getEditPost = (req, res, next) => {
       if (!post) {
         return res.status(400).json({ message: "Post does not exist" });
       }
-      res.status(200).json({ post: post });
+      res.status(200).json({ post: { ...post._doc } });
     })
     .catch((err) => handleError(err));
 };
@@ -206,27 +206,58 @@ exports.deletePost = (req, res, next) => {
     });
 };
 
+// exports.editPost = async (req, res, next) => {
+//   const { title, content, userId } = req.body;
+//   const postId = req.params.postId;
+
+//   const update = {
+//     title,
+//     content,
+//   };
+//   Post.findByIdAndUpdate({ _id: postId }, { $set: update }, { new: true })
+//     .exec()
+//     .then((result) => {
+//       if (!result) {
+//         return res.staus(400).json({ message: "Post Edit unsuccessful" });
+//       }
+//       res.status(200).json({ message: "Post Edit succesful" });
+//     });
+
+//   const updatedDoc = User.findOneAndUpdate(
+//     { _id: userId },
+//     { $set: update },
+//     { new: true }
+//   ).exec();
+//   return res.status(200).json({ message: "Update successful" });
+// };
 exports.editPost = async (req, res, next) => {
-  const { title, content } = req.body;
+  const { title, content, userId } = req.body;
   const postId = req.params.postId;
 
   const update = {
     title,
     content,
   };
-  Post.findByIdAndUpdate({ _id: postId }, { $set: update }, { new: true })
-    .exec()
-    .then((result) => {
-      if (!result) {
-        return res.staus(400).json({ message: "Post Edit unsuccessful" });
-      }
-      res.status(200).json({ message: "Post Edit succesful" });
-    });
 
-  const updatedDoc = User.findOneAndUpdate(
-    { _id: userId },
-    { $set: updates },
-    { new: true }
-  ).exec();
-  return res.status(200).json({ message: "Update successful" });
+  Promise.all([
+    Post.findByIdAndUpdate(
+      { _id: postId },
+      { $set: update },
+      { new: true }
+    ).exec(),
+    User.findOneAndUpdate(
+      { _id: userId },
+      { $set: update },
+      { new: true }
+    ).exec(),
+  ])
+    .then(([postResult, userResult]) => {
+      if (!postResult || !userResult) {
+        return res.status(400).json({ message: "Post edit unsuccessful" });
+      }
+      return res.status(200).json({ message: "Update successful" });
+    })
+    .catch((error) => {
+      return res.status(500).json({ message: "Internal Server Error" });
+    });
 };

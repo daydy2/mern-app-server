@@ -23,6 +23,7 @@ exports.postLogin = (req, res, next) => {
     .then((user) => {
       if (!user) {
         return res.status(401).json({
+          status: false,
           message: "User does not exist in our database",
         });
       }
@@ -31,6 +32,7 @@ exports.postLogin = (req, res, next) => {
         if (!doMatch) {
           console.log(doMatch);
           return res.status(401).json({
+            status: false,
             accessToken: null,
             user: null,
             message: "Password is not correct, try again!",
@@ -43,11 +45,12 @@ exports.postLogin = (req, res, next) => {
           },
           process.env.SECRET,
           {
-            expiresIn: 84600,
+            expiresIn: 2160000000
           }
         );
 
         res.status(200).json({
+          status: true,
           token: token,
           user: {
             userId: user._id.toString(),

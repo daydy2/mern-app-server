@@ -33,6 +33,6 @@ router.post("/comment", setCurrentUser, postComment);
 router.post("/post", setCurrentUser, postPost);
 router.patch("/profile", setCurrentUser, postProfile);
 router.patch("/edit/:postId", setCurrentUser, editPost);
-router.delete('/delete/:postId', setCurrentUser, deletePost)
+router.get('/delete/:postId', setCurrentUser, deletePost)
 
 module.exports = router;
